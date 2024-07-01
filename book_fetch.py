@@ -32,8 +32,11 @@ def fetch_single_book():
             query = "SELECT * FROM books WHERE title = %s;"
             cursor.execute(query, (book_title,))
 
-            id, title, author = cursor.fetchall([0])
-            print(f"{id} {title} {author}")
+            id, title, author, availability = cursor.fetchall()[0]
+            print(f"{id} {title} {author} {availability}")
+
+        except IndexError:
+            print("Sorry, we do not have that book in stock right now.")
 
         except Error as e:
             print(f"Error: {e}")
@@ -43,7 +46,6 @@ def fetch_single_book():
                 cursor.close()
                 conn.close()
 
-#fetch_single_book()
 
 if __name__ == "__main__":
     fetch_books()

@@ -12,7 +12,7 @@ def add_user():
 
             new_user = (name, email, phone)
 
-            query = "INSERT INTO users (name, email, phone) VALUES (%s, %s, %s)"
+            query = "INSERT INTO users (user_name, email, phone) VALUES (%s, %s, %s)"
             cursor.execute(query, new_user)
 
             conn.commit()

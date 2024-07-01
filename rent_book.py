@@ -1,4 +1,5 @@
 from db_connection import connect_db, Error
+from datetime import date
 
 def rent_book():
     conn = connect_db()
@@ -10,25 +11,34 @@ def rent_book():
             query = "SELECT * FROM books WHERE title = %s"
             cursor.execute(query, (rental,))
 
-            id, title, author, availability = cursor.fetchall()
-            print(availability)
-            print(f"{id}: The book {title} by {author} is available to rent!")
+            book_id, title, author, availability = cursor.fetchall()[0]
+            print(f"{book_id}: The book {title} by {author} is available to rent!")
 
-            if availability == 1:
-                availability = 0
+            if availability == "available":
+                availability = "not available"
                 change_availability = (availability, title)
 
                 rental_query = "UPDATE books SET availability = %s WHERE title = %s;"
                 cursor.execute(rental_query, change_availability)
+                
+                confirm_user_id = input("Please enter your user ID ")
+                rental_date = date.today()
+                rental_info = (confirm_user_id, book_id, rental_date)
 
-                user_id = input("Please enter your user ID ")
-                book_id = id
+                add_to_borrowed_query = 'INSERT INTO borrowed_books(user_id, book_id, borrow_date) VALUES(%s, %s, %s);' 
+                cursor.execute(add_to_borrowed_query, rental_info)
+                conn.commit()
+                
+                print(f"You have now rented {rental}.")
 
-            elif availability == 0:
+            elif availability == "not available":
                 print(f"{rental} is currently being rented.")
 
+        except IndexError:
+            print("It appears we do not have that book in stock.")
+
         except Error as e:
-            print(f"{e}")
+            print(f"Error: {e}")    
 
         finally:
             if conn == conn.is_connected():

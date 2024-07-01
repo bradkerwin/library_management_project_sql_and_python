@@ -10,21 +10,29 @@ def return_book():
             query = "SELECT * FROM books WHERE title = %s;"
             cursor.execute(query, (book_return,))
 
-            id, title, author = cursor.fetchall()
+            id, title, author, availability = cursor.fetchall()[0]
             print(f"{id}: Thank you for returning the book {title} by {author}. Have a great day!")
 
-            if availability == 0:
-                availability = 1
+            if availability == "not available":
+                availability = "available"
                 change_availability = (availability, title)
 
                 return_query = "UPDATE books SET availability = %s WHERE title = %s;"
                 cursor.execute(return_query, change_availability)
-
-                user_id = input("Please enter your user ID ")
+                
                 book_id = id
+                cursor = conn.cursor()
+                delete_query = 'DELETE FROM borrowed_books WHERE book_id = %s;'
+                cursor.execute(delete_query, (book_id,))
+                conn.commit()
+                
+                print(f"Thank you for returning {book_return}. Have a great day.")
 
-            elif availability == 0:
+            elif availability == "available":
                 print(f"There's no record of {book_return} ever being rented from here.")
+
+        except IndexError:
+            print("It appears this book was never here. You may want to confirm where you rented it from.")
 
         except Error as e:
             print(f"Error: {e}")

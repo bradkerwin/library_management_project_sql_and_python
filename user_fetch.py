@@ -10,8 +10,8 @@ def fetch_users():
             query = "SELECT * FROM users;"
             cursor.execute(query)
 
-            id, name , email, phone = cursor.fetchall()
-            print(f"{id} {name} {email} {phone}")
+            for id, user_name , email, phone in cursor.fetchall():
+                print(f"{id} {user_name} {email} {phone}")
         
         except Error as e:
             print(f"Error: {e}")
@@ -29,11 +29,14 @@ def fetch_single_user():
             users_name = input("Enter the name of the user you are searching for ").title()
             cursor = conn.cursor()
 
-            query = "SELECT * FROM users WHERE name = %s;"
+            query = "SELECT * FROM users WHERE user_name = %s;"
             cursor.execute(query, (users_name,))
 
-            id, name , email, phone = cursor.fetchall()[0]
-            print(f"{id} {name} {email} {phone}")
+            id, user_name , email, phone = cursor.fetchall()[0]
+            print(f"{id} {user_name} {email} {phone}")
+
+        except IndexError:
+            print("User not found")
 
         except Error as e:
             print(f"Error: {e}")
@@ -42,8 +45,6 @@ def fetch_single_user():
             if conn and conn.is_connected():
                 cursor.close()
                 conn.close()
-
-#fetch_single_user()
 
 if __name__ == "__main__":
     fetch_users()
